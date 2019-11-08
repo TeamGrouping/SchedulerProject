@@ -1,0 +1,201 @@
+<html>
+	<meta charset="UTF-8">
+	<link rel="stylesheet" href="calendar.css" />
+	<head>
+		<div id = "header">
+			<h1 id = "title">Enter Your Availability</h1>
+		</div>
+	</head>
+	<body>
+		<div id = "centering">
+			<table id = "scheduling"></table>
+		</div>
+		<input id = "username" type="text" placeholder="Enter MTU Username" name="username">
+		<select id = "class">
+                  <option value = "tsp1">TSP 01</option>
+                  <option value = "tsp2">TSP 02</option>
+                  <option value = "spm">SPM</option>
+                </select>
+		<button id = "reset" onclick = "reset()">Reset</button>
+		<button id = "submit" onclick = "download()">Submit</button>
+		<!-- <div class = "footer">
+			<p>Created by team We Have No Name</p>
+		</div> -->
+	</body>
+
+	<script>
+		var username;
+		//Keep track of this person's selected available hours
+		var availablehours = [];
+		//Dynamically creates the scheduling table
+		function createSchedulingTable() {
+			var scheduling  = document.getElementById("scheduling");
+			var firstrow = document.createElement('tr');
+			var categories = ['Times', 'S', 'M', 'T', 'W', 'R', 'F', 'Sa'];
+			for(var a = 0; a < 8; a++) {
+				let th = document.createElement('th');
+				th.innerHTML = categories[a];
+				firstrow.appendChild(th);
+			}
+			scheduling.appendChild(firstrow);
+			for(var a = 0; a < 18; a++) {
+				var therow = document.createElement('tr');
+				therow.innerHTML = (a + 7) + ':00';
+				if(a + 7 == 24) {
+					therow.innerHTML = '0:00';
+				}
+				for(var b = 0; b < 7; b++) {
+					let th = document.createElement('th');
+					th.id = a + ',' + b;
+					th.onmouseenter = function() {
+						highlight(th);
+					};
+					th.onmouseout = function() {
+						dehighlight(th);
+					};
+					th.onclick = function() {
+						toggleAvailability(th);
+					};
+					/*
+					th.onmousedown = function() {
+						toggleAvailability(th);
+					}
+					*/
+				   	therow.appendChild(th);
+				}
+				scheduling.appendChild(therow);
+			}
+		}
+		createSchedulingTable();
+		//MOUSE EVENTS
+		//Highlights a cell in the scheduling table if the mouse is over it
+		function highlight(element) {
+			if(element.style.background != 'green') {
+				element.style.background = 'yellow';
+			}
+			else{
+				element.style.background = 'red';
+			}
+		}
+		// Downloads a text file with the array for availability
+		function download() {
+				username = document.getElementById('username').value;
+				if(username == ""){
+					alert("Enter your MTU username before submitting!");
+				}
+				else{
+						   var element = document.createElement('a');
+					for(var a = 0; a < availablehours.length; a++) {
+							   if(availablehours[a] == 'TSP 01' || availablehours[a] == 'TSP02' || availablehours[a] == 'SPM') {
+							   availablehours.splice(a, 1);
+							   break;
+}
+}
+					let sectionselect = document.getElementById('class');
+					let section = sectionselect.options[sectionselect.selectedIndex].text;
+					availablehours.push(section);
+					element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(availablehours));
+					element.setAttribute('download', username+".txt");
+
+					element.style.display = 'none';
+					document.body.appendChild(element);
+
+					element.click();
+
+					document.body.removeChild(element);
+				}
+                               //submit();
+		}
+		//Dehighlights a cell in the scheduling table if the mouse leaves it
+		function dehighlight(element) {
+			if(element.style.background != 'green' && element.style.background != 'red') {
+				element.style.background = '#212529';
+			}
+			else if(element.style.background == 'red'){
+				element.style.background = 'green';
+			}
+		}
+		//Changes the background color to green if the cell is clicked, signifying availability
+		function toggleAvailability(element) {
+			if(element.style.background == 'red') {
+				element.style.background = '#212529';
+				//Deselecting this hour as available, so remove from array holding available hours
+				availablehours.splice(availablehours.indexOf(element.id), 1);
+			}
+			else {
+				element.style.background = 'green';
+				//Selecting this hour as available, so add this hour to array holding available hours
+				availablehours.push(element.id);
+			}
+			console.log(availablehours);
+		}
+		//If reset button is clicked, reset all available hours and change all backgrounds back to white
+		function reset() {
+			for(var a = 0; a < availablehours.length; a++) {
+				let whichelem = availablehours[a];
+				document.getElementById(whichelem).style.background = '#212529';
+			}
+			availablehours = [];
+		}
+		//For testing purposes, translate available hours list into easily readable format
+		//Available hours list elements have format [table row corresponding to hour],[table column corresponding to day]
+		/*Example: availablehours could be [0,1, 0,2, 0,3]...this function would translate this into
+			Monday at 7:00
+			Tuesday at 7:00
+			Wednesday at 7:00
+		*/
+		function translate(hours) {
+			hours = sort(hours);
+			var translated = '';
+			var weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+			for(var a = 0; a < hours.length; a++) {
+				var middleindex = hours[a].indexOf(',');
+				var thehour = hours[a].substring(0, middleindex);
+				var theday = hours[a].substring(middleindex + 1);
+				var stringtime = (parseInt(thehour) + 7);
+				if(stringtime == 24) {
+					stringtime = 0;
+				}
+				translated += weekdays[theday] + ' at ' + stringtime + ':00\n';
+			}
+			return translated;
+		}
+		function sort(hours) {
+			var sortedhours = [];
+			var days = [];
+			for(var a = 0; a < 7; a++) {
+				var thehours = [];
+				for(var b = 0; b < 18; b++) {
+					thehours.push('');
+				}
+				days.push(thehours);
+			}
+			for(var c = 0; c < hours.length; c++) {
+				var middleindex = hours[c].indexOf(',');
+				var thehour = hours[c].substring(0, middleindex);
+				var theday = hours[c].substring(middleindex + 1);
+				console.log(theday + ' ' + thehour);
+				days[theday][thehour] = hours[c];
+			}
+			for(var d = 0; d < 7; d++) {
+				for(var e = 0; e < 18; e++) {
+					if(days[d][e] != '') {
+						sortedhours.push(days[d][e]);
+					}
+				}
+			}
+			return sortedhours;
+		}
+		//LINK FROM CLIENT TO SERVER
+		//If the submit button is clicked, SUBMIT AVAILABLE HOURS TO SERVER
+		function submit() {
+			alert(username + '\'s availability: \n' + translate(availablehours));
+			//Submit available hours to server
+		}
+	</script>
+
+	<footer>
+		<p>Created by team We Have No Name<br>
+			If none of these times match your availability, please contact your counselor about dropping a class or two.</p>
+	</footer>
+</html>

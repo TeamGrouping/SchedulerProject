@@ -1,0 +1,100 @@
+<html>
+<link rel="stylesheet" href="admin.css" />
+  <head>
+    <div id = "header">
+      <h1 id = "title">Admin Page</h1>
+    </div>
+  </head>
+  <body>
+    <div id = "centering">
+      <input type="file" id="fileinput" multiple>
+    </div>
+  </body>
+
+
+<script type="text/javascript">
+  var numTSP1 = 0;
+  var numTSP2 = 0;
+  var numSPM = 0;
+  var dataArray = [];
+  function readMultipleFiles(evt) {
+    //Retrieve all the files from the FileList object
+    var files = evt.target.files;
+    //var dataArray = [];
+
+    if (files) {
+        for (var i=0, f; f=files[i]; i++) {
+                  var r = new FileReader();
+            r.onload = (function(f) {
+                return function(e) {
+                    var contents = e.target.result;
+                    //alert( "Got the file.\n"
+                    //      +"name: " + f.name + "\n"
+                    //      +"type: " + f.type + "\n"
+                    //      +"size: " + f.size + " bytes\n"
+                    //      + "full text: " + contents
+                    //);
+                    var filename = f.name.split('.');
+                    //console.log(filename[0]);
+                    //console.log(filename[1]);
+                    console.log(filename[0] + ' is a duplicate ' + checkDuplicates(filename[0]));
+                    if(filename[1] == 'txt') {
+                        dataArray.push([]);
+                        dataArray[dataArray.length - 1].push(filename[0]);
+                        dataArray[dataArray.length - 1].push(contents.split(","));
+                        console.log(dataArray);
+                        let thecontents = contents.split(",");
+                        console.log(thecontents[thecontents.length - 1]);
+                        switch(thecontents[thecontents.length - 1]) {
+                             case('TSP 01'): numTSP1++; break;
+                             case('TSP 02'): numTSP2++; break;
+                             case('SPM'): numSPM++; break;
+                        }
+                        numsChanged();
+                    }
+                    else {
+                        alert('Enter a text file');
+                    }
+                };
+            })(f);
+
+            r.readAsText(f);
+        }
+       // console.log(dataArray);
+  }
+  else {
+        alert("Failed to load files");
+    }
+
+
+
+  }
+
+
+   function checkDuplicates(name) {
+      for(let a = 0; a < dataArray.length; a++) {
+          if(dataArray[a][0] == name) {
+             return true;
+          }
+      }
+      return false;
+  }
+
+  function numsChanged() {
+     console.log(numTSP1 + ' ' + numTSP2 + ' ' + numSPM);
+  }
+
+
+
+  document.getElementById('fileinput').addEventListener('change', readMultipleFiles, false);
+</script>
+
+
+
+
+<footer>
+  <p>For any IT help, contact Team No Name.<br>
+  We might be able to help you.</p>
+</footer>
+
+</html>
