@@ -1,0 +1,23 @@
+//These are a list of flags for output or algorithm assistance
+
+ERRORS
+
+NAME	CLASS	SCHEDULE	ERROR	ERRORMESS
+				1	No Possible Connection
+				2	Invalid Preferences
+				3	Invalid Schedule
+				4	Teammate Preference Impossible To Honor
+				5	SPM Assigned To Preference Value 1
+				6	Connection Not Made
+				7	Low Available Hours
+				8	Lone SPM
+				9	SPM Split Preference Value 1
+				10	Teammate Preference Not Honored
+				11 	Teammate Preference Not Mutual
+
+
+
+
+
+
+

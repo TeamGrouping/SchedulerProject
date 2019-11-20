@@ -1,0 +1,181 @@
+function Graph() {
+  this.vertices = [];
+  this.edges = [];
+  this.numberOfEdges = 0;
+}
+
+Graph.prototype.addVertex = function(vertex, info, isGroup, sec) { 	//CHANGED whole method
+
+  this.vertices.push(vertex);
+  this.datArray = info;									
+  this.section = sec;
+  this.times = [];
+  this.isInGroup;
+ 
+  if (isGroup) {
+    ///////////////RAAAAAAAAEEEEEEEEEEEE
+  this.students = [];
+  var k;
+  for (k = 0; info[k] != "nada"; k++) {
+    students[k] = info[k];
+///POPULATE TIMES
+  }
+  
+  }else{
+    var i;
+    for (i = 1; i < array.length; i ++) {
+	//DAYS ARE EVEN, TIMES ARE ODD
+	times[i-1] = array[i];
+    }
+
+  } 
+
+  this.edges[vertex] = [];
+};
+
+Graph.prototype.removeVertex = function(vertex) {
+  var index = this.vertices.indexOf(vertex);
+  if(~index) {
+    this.vertices.splice(index, 1);
+  }
+  //Be careful, not sure if this just isolates vertices, and they can still be connected later per 
+  // our modifications ^^^
+  while(this.edges[vertex].length) {
+    var adjacentVertex = this.edges[vertex].pop();
+    this.removeEdge(adjacentVertex, vertex);
+  }
+};
+
+//NEW METHOD
+//Meant to check to see if two students have sharted hours, and list them.
+Graph.prototype.checkSharedHours = function(vertex1, vertex2) {
+  var times1 = vertex1.times;
+  var times2 = vertex2.times;
+  var sharedTimes = [];
+  for(var i = 0; i < times1.length; i + 2) {
+    for (var j = 0; k < times2.length; j + 2) {
+      if (times1[i] == times2[j]) { //Checks to see if the day is the same
+        if (times1[i + 1] == times2[j + 1]) {
+          sharedTimes.push(times1[i]);
+          sharedTimes.push(times1[j]);
+        }
+      }
+    }//end inner loop
+  }//end outer loop
+  return sharedTimes;
+};
+
+
+
+Graph.prototype.addEdge = function(vertex1, vertex2, h, d) { //CHANGED
+  this.edges[vertex1].push(vertex2);
+  this.edges[vertex2].push(vertex1);
+  this.day = d;
+  this.hour = h;                                          //CHANGED
+  this.numberOfEdges++;
+};
+
+Graph.prototype.removeEdge = function(vertex1, vertex2) {
+  var index1 = this.edges[vertex1] ? this.edges[vertex1].indexOf(vertex2) : -1;
+  var index2 = this.edges[vertex2] ? this.edges[vertex2].indexOf(vertex1) : -1;
+  if(~index1) {
+    this.edges[vertex1].splice(index1, 1);
+    this.numberOfEdges--;
+  }
+  if(~index2) {
+    this.edges[vertex2].splice(index2, 1);
+  }
+};
+Graph.prototype.size = function() {
+  return this.vertices.length;
+};
+Graph.prototype.relations = function() {
+  return this.numberOfEdges;
+};
+
+//NEW METHOD
+//Getter for connection amount for students, meant to allow for priority grouping.
+Graph.prototype.connections = function(vertex) {
+  return this.vertices.edges.length;
+}
+
+
+
+
+Graph.prototype.traverseDFS = function(vertex, fn) {
+  if(!~this.vertices.indexOf(vertex)) {
+    return console.log('Vertex not found');
+  }
+  var visited = [];
+  this._traverseDFS(vertex, visited, fn);
+};
+Graph.prototype._traverseDFS = function(vertex, visited, fn) {
+  visited[vertex] = true;
+  if(this.edges[vertex] !== undefined) {
+    fn(vertex);
+  }
+  for(var i = 0; i < this.edges[vertex].length; i++) {
+    if(!visited[this.edges[vertex][i]]) {
+      this._traverseDFS(this.edges[vertex][i], visited, fn);
+    }
+  }
+};
+Graph.prototype.traverseBFS = function(vertex, fn) {
+  if(!~this.vertices.indexOf(vertex)) {
+    return console.log('Vertex not found');
+  }
+  var queue = [];
+  queue.push(vertex);
+  var visited = [];
+  visited[vertex] = true;
+
+  while(queue.length) {
+    vertex = queue.shift();
+    fn(vertex);
+    for(var i = 0; i < this.edges[vertex].length; i++) {
+      if(!visited[this.edges[vertex][i]]) {
+        visited[this.edges[vertex][i]] = true;
+        queue.push(this.edges[vertex][i]);
+      }
+    }
+  }
+};
+Graph.prototype.pathFromTo = function(vertexSource, vertexDestination) {
+  if(!~this.vertices.indexOf(vertexSource)) {
+    return console.log('Vertex not found');
+  }
+  var queue = [];
+  queue.push(vertexSource);
+  var visited = [];
+  visited[vertexSource] = true;
+  var paths = [];
+
+  while(queue.length) {
+    var vertex = queue.shift();
+    for(var i = 0; i < this.edges[vertex].length; i++) {
+      if(!visited[this.edges[vertex][i]]) {
+        visited[this.edges[vertex][i]] = true;
+        queue.push(this.edges[vertex][i]);
+        // save paths between vertices
+        paths[this.edges[vertex][i]] = vertex;
+      }
+    }
+  }
+  if(!visited[vertexDestination]) {
+    return undefined;
+  }
+
+  var path = [];
+  for(var j = vertexDestination; j != vertexSource; j = paths[j]) {
+    path.push(j);
+  }
+  path.push(j);
+  return path.reverse().join('-');
+};
+Graph.prototype.print = function() {
+  console.log(this.vertices.map(function(vertex) {
+    return (vertex + ' -> ' + this.edges[vertex].join(', ')).trim();
+  }, this).join(' | '));
+};
+
+/////////////

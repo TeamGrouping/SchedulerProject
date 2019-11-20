@@ -1,0 +1,21 @@
+
+
+CONNECTION: A connection is defined as at least one shared hour between two relevant students. Connections for each student should be stored in a way so that there is an element for
+		each shared hour. Perhaps a graph where all shared hours between students are edges, and whenever a group is made, delete all edges to those students that weren't
+		used to create the group, as they are no longer eligible for team placement.
+
+SHARED CONNECTION: A shared connection is defined as when a group of students have not only connections with each other, but also a connection that aligns them upon at least one hour.
+		This is used to simply say that x students have at least one shared connection, meaning they have at least one hour a week they can meet together.
+
+
+GROUPING: To create a group, a TSP student must have shared hours (CONNECTION) with at least two more TSP students, and those at least two more TSP students must have connections with
+		eachother. This indicates that they have at least one hour where every group member has indicated that they can be together. The TSP students must have at least one
+		shared connection with at least one SPM student as well.
+
+ISOLATED: Isolated means they have potential connections, but they are all destroyed through the use of the algorithm. This is the case when creating a group is done tactially 
+		so that less students are isolated than must be.
+
+CONTINUOUS: Continuous means that it does not have a predetermined point in the code, but rather should be exectuted whenever an event happens that is relevant to its condition,
+		specified in the algorithm.
+
+DISCARDED: Discarded means permanently remove so that the algorithm no longer takes it into consideration.

@@ -1,0 +1,29 @@
+HELPER METHODS
+
+//1.)Method to check to see if teammate requests are mutual. INPUTS VERTEX RETURNS BOOLEAN
+
+//2.) Getter methof to check how many edges a vertex has INPUT VERTEX RETURNS INT.
+
+3.) Getter method for vertices RETURNS VERTEX
+
+4.) Method to check if sections are compatible. RETURNS 0 	(if different TSP Sections)
+							1	(if same TSP section)
+							2	(if TSP-SPM)
+
+//5.) Organize vertices from same sections together in structure so 5 may not be necessary.
+
+6.) Method to delete all edges from a vertex except those in their group (returns nothing)
+   -- can call removeEdge for all edges necessary.
+
+7.) Method to compile hours from students into shared hours. Likely setup will be array of group,
+	even of size one, to allow for existing groups to be used here as well, and then another 	sole vertex to be added to the hours. So (array[vertices], vertex). These shared hours on
+	which the group is joined should be the only way that students are added to the group
+	thereafter.
+
+8.)Method for flagging students (vertex, flag). This will not decide if they are eligible, but
+	rather apply the flag when told to and checked elsewhere. The purpose of flags is to output
+	to Walker any issues that go down. Returns nothing?
+
+9.) Method to list students in an array according to number of connections. (that method should
+	already exist). This should also be continuously run each time a distribution iteration
+	occurs. The purpose is to always have people with least connections towards the front.
