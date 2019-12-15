@@ -8,19 +8,322 @@
   <body>
     <div id = "centering">
       <input type="file" id="fileinput" multiple>
+
+    <table class = "vals" id = "nums">
+        <tr class = "vals" id = "titles">
+	  <th class = "vals">TSP 01</th>
+	  <th class = "vals">TSP 02</th>
+	  <th class = "vals">SPM</th>
+	</tr>
+
+        <tr class = "vals" id = "values">
+	  <th class = "vals" id = "tsp1">0</th>
+	  <th class = "vals" id = "tsp2">0</th>
+	  <th class = "vals" id = "spm">0</th>
+	</tr>
+    </table>
+      <button id = "submit" onclick = "readMultipleFiles()">Submit</button>
+      <button id = "download" onclick = "output()">Download</button>
     </div>
   </body>
 
 
 <script type="text/javascript">
+
+
   var numTSP1 = 0;
   var numTSP2 = 0;
   var numSPM = 0;
-  var dataArray = [];
-  function readMultipleFiles(evt) {
+  var dataArray = []; // Initial data array
+
+  var finalgroups = []; // Final array of groups
+
+  var iterationCount = 1;
+
+  function output(){ // Main function
+
+	  initialize( dataArray );
+	  splitGroups();
+	  fullHourCount();//TODO
+	  groupSize = calcTeamSize()
+	  var check = 0;
+	  for ( var l = 0; l < groupHours.length; l++ ) {
+	    if ( groupHours[l] == 0 ) {
+	      check++;
+	    }
+	  }
+	  cleanOutput( true );
+	  
+	  insertSPM();
+	  
+	  download();
+	  console.log(groupHours);
+
+  }
+  function splitGroups(){
+
+    var size = calcTeamSize(); // Number of members in each team
+    var iter = 1; // Current team number
+    var count = 0; // Iterator that resets and increment iter
+    //console.log(finalgroups);
+
+    for ( var i = 0; i < finalgroups.length; i++ ) {
+      console.log("Starting for loop with size of " + size + " with a run count of " + finalgroups.length);
+      if ( count == size ){
+        iter++;
+        count = 1;
+      } else {
+        count++;
+      }
+      finalgroups[i].splice(0, 0, iter);
+    }
+  }
+  
+  function insertSPM(){
+	  
+	  var scrum = [];
+	  var technical = [];
+	  var personnel = [];
+	  
+	  console.log(dataArray.length);
+	  console.log(dataArray);
+	  
+	  for ( var i = 0; i < dataArray.length; i++ ) { // Cleans the SPM data and pushes the SPM student into arrays based on job choice
+		  if ( dataArray[i][1][dataArray[i][1].length-3] == "SPM" ) {
+			  console.log("SPM Found");
+			  dataArray[i][1].push(dataArray[i][1][0]);
+			  dataArray[i][1].splice(0, 1);
+			  
+			  if ( dataArray[i][1][dataArray[i][1].length-3] == 3) {
+				  scrum.push(dataArray[i]);
+				  console.log("Scrum found");
+			  } else if ( dataArray[i][1][dataArray[i][1].length-2] == 3 ) {
+				  technical.push(dataArray[i]);
+				  console.log("technical found");
+			  } else if ( dataArray[i][1][dataArray[i][1].length-1] == 3 ) {
+				  personnel.push(dataArray[i]);
+				  console.log("Personnel found");
+			  }
+		  }
+	  }
+	  
+	  var iter = 0;
+	  for ( var i = 0; i < clean.length; i = i + 4 + groupSize ){
+		 
+		 if ( iter < scrum.length && iter < scrum.length ) {
+			 clean.splice(i+1, 0, scrum[iter][0] + " : Scrum Master\n" );
+		 } else {
+			 clean.splice(i+1, 0, "No Valid Scrum Master Found\n" );
+		 }
+		 
+		 if ( iter < scrum.length && iter < technical.length ) {
+			 clean.splice(i+1, 0, technical[iter][0] + " : Technical Manager\n" );
+		 } else {
+			 clean.splice(i+1, 0, "No Valid Technical Manager Found\n" );
+		 }
+		 
+		 if ( iter < scrum.length && iter < personnel.length ) {
+			 clean.splice(i+1, 0, personnel[iter][0] + " : Personnel Manager\n" );
+		 } else {
+			 clean.splice(i+1, 0, "No Valid Personnel Manager Found\n" );
+		 }
+		 iter++;
+		  
+	  }
+	  
+	  for ( var i = 0; i < clean.length; i++ ) { // Remove the group numbers at the front of student names
+		  if ( isNaN(clean[i][0]) == false ) { // not currently working
+			  clean[i][0] = "";
+		  }
+	  }
+	  
+	  
+  }
+  
+  function calcTeamSize(){
+    var count = finalgroups.length;
+    // Count could be anywhere from 20 to 53
+    if ( count < 25 ) {
+      return 4; // 6 groups of 4
+    } else if ( count < 40 ) {
+      return 5; // 7 groups of 5
+    } else {
+      return 6; // 7 groups of 5
+    }
+
+  }
+
+  function initialize( student ) { // Inserts every TSP student by calling insert one at a time
+    //console.log("Initializing on iteration " + iterationCount + " and looping " + student.length + " times");
+		for ( var i = 0; i < student.length; i++ ) {
+		  //console.log(student[i][1]);
+			if(student[i][1][0] == "TSP 01" || student[i][1][0] == "TSP 02") {
+			  //console.log("Inserting");
+			  insert(student[i]);
+			}
+		}
+	}
+
+  var allData = [0,0,0,1,1,1,1,0,1,0,2,1,2,0,3,0,4,1,4,0,3,1,5,0,6,0,7,0,8,0,9,0,10,0,11,0,12,0,13,0,14,0,15,0,16,0,17,0,17,1,16,1,15,1,14,1,13,1,12,1,11,1,10,1,9,1,8,1,7,1,6,1,5,1,0,2,0,3,1,2,1,3,3,2,3,3,2,3,2,2,4,2,4,3,5,3,5,2,6,2,6,3,7,2,7,3,8,2,8,3,9,2,9,3,10,2,10,3,11,2,11,3,12,2,12,3,13,2,13,3,14,2,14,3,15,3,15,2,16,2,17,2,17,3,16,3,0,4,0,5,1,5,1,4,2,4,2,5,3,4,3,5,4,5,4,4,5,4,6,4,6,5,5,5,7,4,7,5,8,5,9,5,9,4,8,4,10,4,11,4,12,4,12,5,11,5,10,5,13,5,14,5,15,5,15,4,14,4,13,4,16,4,17,4,17,5,16,5,17,6,16,6,15,6,14,6,13,6,12,6,11,6,10,6,9,6,8,6,7,6,6,6,5,6,4,6,3,6,2,6,1,6,0,6];
+  var compare = [];
+  var sharedHours = [];
+  var groupHours = [];
+
+  function fullHourCount(){
+    var calc = Math.ceil(finalgroups.length / calcTeamSize());
+    for ( var i = 1; i < calc + 1; i++ ) { // For each team
+		var temp = hoursShared(i);
+		if ( temp > 0 ) {
+			groupHours.push( temp );
+		} else {
+			groupHours.push( "Unmatchable group, no hours shared" );
+		}
+      
+    }
+  }
+
+  function findHours( hours, location ){ // Takes in an array with the two values in it, then searches the second array for the hours
+  //console.log("Running find hours on location passed in: " + location + " with length " + location.length);
+    for ( var i = 0; i < location.length; i = i + 2 ) {
+      console.log
+
+      if ( location[i] == hours[0] && location[i+1] == hours[1] && location[i] != undefined && location[i+1] != undefined && hours[0] != undefined && hours[1] != undefined ) {
+        //console.log("Match found: " + location[i] + " " + location[i+1] + " to " + hours[0] + " " + hours[1]);
+        return true;
+      }
+    }
+    return false;
+  }
+
+  function hoursShared( groupNum ){ // TODO
+    // Function to verify that everyone in each group has at least one shared hour
+    var hourCount = 0; // Initialize the count as 0
+    var grouped = [];
+    for ( var i = 0; i < finalgroups.length; i++ ) { // for every group in the final groups array
+      if ( finalgroups[i][0] == groupNum ) { // Check for the right group
+        grouped.push(finalgroups[i]);
+      }
+    }
+
+    for ( var j = 0; j < allData.length; j = j + 2 ) { // For every single possible hour, check if all members have it
+      var resetCount = 0;
+      //console.log("Comparing " + allData.slice( j, j + 2 ) );
+      for ( var i = 0; i < grouped.length; i++ ) { // For every member in the group
+
+        if ( findHours( allData.slice( j, j + 2 ) , grouped[i][2].slice(1, grouped[i][2].length) ) ){ // If the student has the target hour, increment the count
+          //console.log("Findhours has returned true");
+          resetCount++;
+        }
+        if ( resetCount == grouped.length ) {
+          console.log("Goal number of " + resetCount + " reached, incrementing hourcount");
+          hourCount++;
+          resetCount = 0;
+        }
+      }
+    }
+
+    console.log("Finished second loop. Hours shared in group " + groupNum + " = " + hourCount);
+
+    return hourCount;
+  }
+
+
+  function insert( student ){ // Inserts a single student into the finalgroups Array, by comparing them to other students
+	  console.log("Inserting " + student[0]);
+	  if ( finalgroups.length == 0 || finalgroups.length == 1 ) {
+		  finalgroups.push( student );
+	  } else if ( finalgroups.length > 1 ) {
+
+		  var currentBestLocation = 0; // Array location of the current student
+		  var maxSharedHours = compareStudents(finalgroups[0], student); // How close the closest student is
+
+		  // Find which student is closest to the new student to be inserted
+		  for ( var i = 1; i < finalgroups.length; i++ ) {
+			  if ( compareStudents(finalgroups[i], student ) > maxSharedHours ) {
+
+			    currentBestLocation = i;
+			    maxSharedHours = compareStudents(finalgroups[i], student );
+
+			  }
+		  }
+		  console.log(student[0] + " is closest to " + finalgroups[currentBestLocation][0])
+		  // Check if the new student should be inserted on the left or right
+		  // Start by checking the edges, because they default to inserting inwards
+		  if ( currentBestLocation == 0 ) { // Left edge hit, default to inserting inwards
+		    console.log("Left edge hit, default to inserting inwards");
+		    finalgroups.splice( currentBestLocation + 1, 0, student );
+		  } else if ( currentBestLocation == finalgroups.length - 1 ) { // Right edge hit, default to inserting inwards
+		    console.log("Right edge hit, default to inserting inwards");
+		    finalgroups.splice( currentBestLocation, 0, student );
+		  } else { // If not on an edge, check which of the two closest match and insert on that side
+		    var lMatch = compareStudents(finalgroups[currentBestLocation - 1], student ); // Shared hours with student on the left
+		    var rMatch = compareStudents(finalgroups[currentBestLocation + 1], student ); // Shared hours with student on the right
+		    console.log("Left matching: " + lMatch );
+		    console.log("Right matching: " + rMatch );
+		    if ( lMatch >= rMatch ) { // Left student has more matching hours
+		      console.log("More matching hours with student on the left, placing left");
+		      finalgroups.splice( currentBestLocation, 0, student );
+		    } else { // Right student has more matching hours
+		      console.log("More matching hours with student on the right, placing right");
+		      finalgroups.splice( currentBestLocation + 1, 0, student );
+		    }
+
+		  }
+
+	  }
+
+  }
+
+  //Takes two student arrays, returns how many hours they share
+  function compareStudents(student1, student2) {
+     let numequal = 0;
+     //console.log('comparing  ' + student1[0] + ' ' + student2[0]);
+     let longest = student1[1];
+     let shortest = student2[1];
+     if(student2.length > student1.length) {
+        longest = student2[1];
+        shortest = student1[1];
+     }
+     if(longest[0] != shortest[0]) {
+        console.log('students not in the same section');
+        return 0;
+     }
+     let index = 1;
+     while(index < shortest.length) {
+        let hours1 = '';
+        hours1 += shortest[index];
+        index++;
+        hours1 += shortest[index];
+        index++;
+
+        let hours2 = [];
+        let a = 1;
+        while(a < longest.length) {
+           let eachhour = '';
+           eachhour += longest[a];
+           a++;
+           eachhour += longest[a];
+           a++;
+           if(hours1 == eachhour) {
+              //console.log('both students have ' + hours1);
+              numequal++;
+
+              //console.log(numequal);
+           }
+        }
+
+     }
+     //console.log(student1[0] + " and " + student2[0] + " share " + numequal + " hours");
+     return numequal;
+
+  }
+
+
+  function readMultipleFiles() {
     //Retrieve all the files from the FileList object
-    var files = evt.target.files;
+    var files = fileinput.files;
     //var dataArray = [];
+    console.log("Reading multiple files");
 
     if (files) {
         for (var i=0, f; f=files[i]; i++) {
@@ -38,19 +341,49 @@
                     //console.log(filename[0]);
                     //console.log(filename[1]);
                     console.log(filename[0] + ' is a duplicate ' + checkDuplicates(filename[0]));
+                    let index = checkDuplicates(filename[0]);
+                    if(index != -1) {
+						console.log("duplicate encountered");
+                        var oldarray = dataArray[index][1];
+                        //console.log(oldarray[0]);
+
+                        if ( oldarray[0] != 'TSP 01' && oldarray[0] != 'TSP 02' ) {
+							              numSPM--;
+						            }
+
+                        switch(oldarray[0]) {
+                           case('TSP 01'): numTSP1--; console.log("TSP1 error"); break;
+                             case('TSP 02'): numTSP2--; break;
+                             //case('SPM'): numSPM--; break;
+
+                       }
+                       numsChanged();
+                       dataArray.splice(index, 1);
+                    }
                     if(filename[1] == 'txt') {
                         dataArray.push([]);
                         dataArray[dataArray.length - 1].push(filename[0]);
-                        dataArray[dataArray.length - 1].push(contents.split(","));
-                        console.log(dataArray);
                         let thecontents = contents.split(",");
-                        console.log(thecontents[thecontents.length - 1]);
-                        switch(thecontents[thecontents.length - 1]) {
+                        let sect = thecontents.pop();
+                        thecontents.unshift(sect);
+                        dataArray[dataArray.length - 1].push(thecontents);
+                        //console.log(dataArray);
+                        //let thecontents = contents.split(",");
+                        //console.log(thecontents[thecontents.length - 1]);
+                        //console.log("Contents: " + thecontents[0]);
+
+                        if ( thecontents[0] != 'TSP 01' && thecontents[0] != 'TSP 02' ) {
+							              numSPM++;
+						            }
+
+                        switch(thecontents[0]) {
                              case('TSP 01'): numTSP1++; break;
                              case('TSP 02'): numTSP2++; break;
-                             case('SPM'): numSPM++; break;
+                             //case('SPM'): numSPM++; break;
                         }
                         numsChanged();
+                        //alert(dataArray);
+
                     }
                     else {
                         alert('Enter a text file');
@@ -60,40 +393,85 @@
 
             r.readAsText(f);
         }
-       // console.log(dataArray);
+       //alert(dataArray);
   }
   else {
         alert("Failed to load files");
     }
-
-
-
   }
 
-
    function checkDuplicates(name) {
+     //console.log("Checking for duplicates");
       for(let a = 0; a < dataArray.length; a++) {
           if(dataArray[a][0] == name) {
-             return true;
+             return a;
           }
       }
-      return false;
+      return -1;
   }
 
   function numsChanged() {
      console.log(numTSP1 + ' ' + numTSP2 + ' ' + numSPM);
+     document.getElementById('tsp1').innerHTML = numTSP1;
+     document.getElementById('tsp2').innerHTML = numTSP2;
+     document.getElementById('spm').innerHTML = numSPM;
+  }
+
+  var clean = [];
+  var runClean = false;
+  
+  function cleanOutput( run ){
+	console.log(finalgroups);
+    if ( run ) {
+      runClean = true;
+    } else {
+      return;
+    }
+    for ( var i = 0; i < finalgroups.length; i++ ) {
+      clean.push(finalgroups[i][0] + " " + finalgroups[i][1] + "\n");
+    }
+    
+    
+    var iter = 0;
+    for ( var i = 0; i < clean.length; i = i + groupSize + 1 ) { // Insert the group timings into the spreadsheet
+		clean.splice(i, 0, "Shared hours for group " + (iter + 1) + ": " + groupHours[iter] + "\n");
+		iter++;
+	}
+    
   }
 
 
+  function download() {
+        var element = document.createElement('a');
+        console.log("Downloading");
 
-  document.getElementById('fileinput').addEventListener('change', readMultipleFiles, false);
+        var outfile;
+        if ( runClean ) {
+          outfile = encodeURIComponent(clean);
+        } else {
+          outfile = encodeURIComponent(finalgroups);
+        }
+
+        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + outfile);
+
+        element.setAttribute('download', "Groups.txt");
+
+        element.style.display = 'none';
+        document.body.appendChild(element);
+
+        element.click();
+
+        document.body.removeChild(element);
+        console.log("Download finished");
+  }
+
 </script>
 
 
 
 
 <footer>
-  <p>For any IT help, contact Team No Name.<br>
+  <p>For any IT help, contact Team NERDAL<br>
   We might be able to help you.</p>
 </footer>
 

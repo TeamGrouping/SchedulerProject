@@ -11,11 +11,23 @@
 			<table id = "scheduling"></table>
 		</div>
 		<input id = "username" type="text" placeholder="Enter MTU Username" name="username">
-		<select id = "class">
-                  <option value = "tsp1">TSP 01</option>
+		<select id = "class" onchange = "spawnRoles()">
+                	<option value = "tsp1">TSP 01</option>
                   <option value = "tsp2">TSP 02</option>
                   <option value = "spm">SPM</option>
                 </select>
+		<fieldset id = "role">
+								Rate each role<br>
+								(3 = Want, 1 = Don't want)<br>
+								Scrum Master: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3<input type = "radio" name = "scrum" id = "scrum3" value = "3">2<input type = "radio" name = "scrum" id = "scrum2" value = "2">1<input type = "radio" name = "scrum" id = "scrum1" value = "1"><br>
+								Technical Manager: &nbsp;3<input type = "radio" name = "technical" id = "technical3" value = "3">2<input type = "radio" name = "technical" id = "technical2" value = "2">1<input type = "radio" name = "technical" id = "technical1" value = "1"><br>
+								Personnel Manager: 3<input type = "radio" name = "personnel" id = "personnel3" value = "3">2<input type = "radio" name = "personnel" id = "personnel2" value = "2">1<input type = "radio" name = "personnel" id = "personnel1" value = "1">
+		</fieldset>
+		<!-- <select id = "role">
+									<option value = "scrum">Scrum Master</option>
+									<option value = "technical">Technical Manager</option>
+									<option value = "personnel">Personnel Manager</option>
+								</select> -->
 		<button id = "reset" onclick = "reset()">Reset</button>
 		<button id = "submit" onclick = "download()">Submit</button>
 		<!-- <div class = "footer">
@@ -77,23 +89,48 @@
 				element.style.background = 'red';
 			}
 		}
+
+		var spmSelection = [];
+
 		// Downloads a text file with the array for availability
 		function download() {
 				username = document.getElementById('username').value;
+				let sectionselect = document.getElementById('class');
+				let section = sectionselect.options[sectionselect.selectedIndex].text;
 				if(username == ""){
 					alert("Enter your MTU username before submitting!");
 				}
 				else{
 						   var element = document.createElement('a');
-					for(var a = 0; a < availablehours.length; a++) {
-							   if(availablehours[a] == 'TSP 01' || availablehours[a] == 'TSP02' || availablehours[a] == 'SPM') {
-							   availablehours.splice(a, 1);
-							   break;
-}
-}
-					let sectionselect = document.getElementById('class');
-					let section = sectionselect.options[sectionselect.selectedIndex].text;
+					// for(var a = 0; a < availablehours.length; a++) {
+					// 		 if(availablehours[a] == 'TSP 01' || availablehours[a] == 'TSP02' || availablehours[a] == 'SPM') {
+					// 		   availablehours.splice(a, 1);
+					// 		   break;
+					// 		 }
+					// 		 //document.getElementById(availablehours[a]).style.background = '#212529';
+					// }
+					// Adds information about the user's rating of each position to the file
+					var roles = ["scrum", "technical", "personnel"];
+					for(var role = 0; role < 3; role++){
+						for(var score = 3; score > 0; score--){
+							if(document.getElementById(roles[role]+score).checked){
+								spmSelection[role] = score;
+							}
+						}
+					}
 					availablehours.push(section);
+					if(section == "SPM"){
+							for(var i = 0; i < 3; i++){
+								if(spmSelection[i] == 0){
+									alert("Please make sure you rate each role based one what you want and don't want before submitting!");
+									for(var j = 0; j < i+1; j++){
+										availablehours.pop();
+									}
+									return;
+								}
+								availablehours.push(spmSelection[i]);
+							}
+					}
 					element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(availablehours));
 					element.setAttribute('download', username+".txt");
 
@@ -103,6 +140,16 @@
 					element.click();
 
 					document.body.removeChild(element);
+
+					if(section == "SPM"){
+							availablehours.pop();
+							availablehours.pop();
+							availablehours.pop();
+					}
+
+					availablehours.pop();
+
+					//document.getElementById('username').value = '';
 				}
                                //submit();
 		}
@@ -186,6 +233,38 @@
 			}
 			return sortedhours;
 		}
+
+		//Makes roles visible only if the user selects SPM as their class
+		function spawnRoles(){
+			if(document.getElementById("class").value == "spm"){
+				document.getElementById("role").style.visibility = 'visible';
+				for(var i = 0; i < 3; i++){
+					spmSelection[i] = 0;
+				}
+			}
+			else{
+				var radioButtonArray = document.getElementsByName("scrum");
+				for (var i=0; i<radioButtonArray.length; i++)
+				{
+ 					var radioButton = radioButtonArray[i];
+ 					radioButton.checked = false;
+				}
+				radioButtonArray = document.getElementsByName("technical");
+				for (var i=0; i<radioButtonArray.length; i++)
+				{
+ 					var radioButton = radioButtonArray[i];
+ 					radioButton.checked = false;
+				}
+				radioButtonArray = document.getElementsByName("personnel");
+				for (var i=0; i<radioButtonArray.length; i++)
+				{
+ 					var radioButton = radioButtonArray[i];
+ 					radioButton.checked = false;
+				}
+				document.getElementById("role").style.visibility = 'hidden';
+			}
+		}
+
 		//LINK FROM CLIENT TO SERVER
 		//If the submit button is clicked, SUBMIT AVAILABLE HOURS TO SERVER
 		function submit() {
@@ -195,7 +274,7 @@
 	</script>
 
 	<footer>
-		<p>Created by team We Have No Name<br>
+		<p>Created by team NERDAL<br>
 			If none of these times match your availability, please contact your counselor about dropping a class or two.</p>
 	</footer>
 </html>
